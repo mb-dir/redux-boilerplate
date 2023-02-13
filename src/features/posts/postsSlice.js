@@ -16,10 +16,16 @@ const initialState = [
 const postSlice = createSlice({
   name: "posts",
   initialState,
-  reducers: {},
+  reducers: {
+    addPost: (state, action) => {
+      state.push(action.payload);
+    },
+  },
 });
 
 //To be more flex, imagine we use posts in more than one component and we have const post = useSelector(tate => state.posts), if the state structure change we will have to change it in each place, this approach makes that we will need to change it only here
 export const selectAllPosts = state => state.posts;
+
+export const { addPost } = postSlice.actions;
 
 export default postSlice.reducer;

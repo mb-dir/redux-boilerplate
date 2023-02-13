@@ -6,3 +6,5 @@ export const store = configureStore({
     posts: postsReducer,
   },
 });
+
+store.subscribe(() => console.log(store.getState()));
