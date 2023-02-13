@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addPost } from "./postsSlice";
-import { nanoid } from "@reduxjs/toolkit";
+
 const AddPostForm = () => {
   const [ title, setTitle ] = useState("");
   const [ content, setContent ] = useState("");
@@ -14,7 +14,7 @@ const AddPostForm = () => {
     e.preventDefault();
     const hasContent = title && content;
     if (hasContent) {
-      dispatch(addPost({ id: nanoid(), title, content }));
+      dispatch(addPost(title, content));
     }
   };
 
