@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectPostById, updatePost, deletePost } from "./postsSlice";
+import { getSinglePost, updatePost } from "./postsSlice";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { selectAllUsers } from "../users/usersSlice";
@@ -9,7 +9,7 @@ const EditPost = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => selectPostById(state, Number(postId)));
+  const post = useSelector(state => getSinglePost(state, +postId));
   const users = useSelector(selectAllUsers);
 
   const [title, setTitle] = useState(post?.title)
@@ -66,7 +66,6 @@ const EditPost = () => {
   const onDeletePostClicked = () => {
     try {
       setRequestStatus("pending");
-      dispatch(deletePost({ id: post.id })).unwrap();
 
       resetState();
       navigate("/");
