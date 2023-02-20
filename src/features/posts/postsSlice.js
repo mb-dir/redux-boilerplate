@@ -43,6 +43,20 @@ export const updatePost = createAsyncThunk(
   }
 );
 
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async initialPost => {
+    const { id } = { initialPost };
+    try {
+      const res = await axios.delete(`${POSTS_URL}/${id}`);
+      if(res?.status === 200) return initialPost;
+      return `${res.status}: ${res.statusText}`;
+    } catch (error) {
+      return error.message;
+    }
+  }
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -115,7 +129,7 @@ const postSlice = createSlice({
         });
         action.payload.id = sortedPosts[sortedPosts.length - 1].id + 1;
 
-        action.payload.userId = Number(action.payload.userId);
+        action.payload.userId = +action.payload.userId;
 
         // cuz out fake api doesn't have those data
         action.payload.date = new Date().toISOString();
@@ -139,6 +153,15 @@ const postSlice = createSlice({
         action.payload.date = new Date().toISOString();
         const posts = state.posts.filter(post => post.id !== id);
         state.posts = [ ...posts, action.payload ];
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log("Delete could not complete");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        state.posts = state.posts.filter(post => post.id !== id);
       });
   },
 });

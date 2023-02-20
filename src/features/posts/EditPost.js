@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSinglePost, updatePost } from "./postsSlice";
+import { getSinglePost, updatePost, deletePost } from "./postsSlice";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { selectAllUsers } from "../users/usersSlice";
@@ -29,7 +29,7 @@ const EditPost = () => {
 
   const onTitleChanged = e => setTitle(e.target.value);
   const onContentChanged = e => setContent(e.target.value);
-  const onAuthorChanged = e => setUserId(Number(e.target.value));
+  const onAuthorChanged = e => setUserId(+e.target.value);
   const resetState = () => {
     setTitle("");
     setContent("");
@@ -66,7 +66,15 @@ const EditPost = () => {
   const onDeletePostClicked = () => {
     try {
       setRequestStatus("pending");
-
+      dispatch(
+          deletePost({
+            id: post.id,
+            title,
+            body: content,
+            userId,
+            reactions: post.reactions,
+          })
+        ).unwrap();
       resetState();
       navigate("/");
     } catch (err) {
