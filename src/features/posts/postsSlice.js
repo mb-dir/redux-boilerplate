@@ -30,6 +30,33 @@ export const addNewPost = createAsyncThunk(
   }
 );
 
+export const updatePost = createAsyncThunk(
+  "posts/updatePost",
+  async initialPost => {
+    const { id } = initialPost;
+    try {
+      const { data } = await axios.put(`${POSTS_URL}/${id}`, initialPost);
+      return data;
+    } catch (error) {
+      return error.message;
+    }
+  }
+);
+
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async initialPost => {
+    const { id } = { initialPost };
+    try {
+      const res = await axios.delete(`${POSTS_URL}/${id}`);
+      if(res?.status === 200) return initialPost;
+      return `${res.status}: ${res.statusText}`;
+    } catch (error) {
+      return error.message;
+    }
+  }
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -102,7 +129,7 @@ const postSlice = createSlice({
         });
         action.payload.id = sortedPosts[sortedPosts.length - 1].id + 1;
 
-        action.payload.userId = Number(action.payload.userId);
+        action.payload.userId = +action.payload.userId;
 
         // cuz out fake api doesn't have those data
         action.payload.date = new Date().toISOString();
@@ -115,6 +142,26 @@ const postSlice = createSlice({
         };
         console.log(action.payload);
         state.posts.push(action.payload);
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log("Update could not complete");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        action.payload.date = new Date().toISOString();
+        const posts = state.posts.filter(post => post.id !== id);
+        state.posts = [ ...posts, action.payload ];
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log("Delete could not complete");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        state.posts = state.posts.filter(post => post.id !== id);
       });
   },
 });
@@ -123,6 +170,9 @@ const postSlice = createSlice({
 export const selectAllPosts = state => state.posts.posts;
 export const getPostsStatus = state => state.posts.status;
 export const getPostsError = state => state.posts.error;
+export const getSinglePost = (state, postId) => {
+  return state.posts.posts.find(post => post.id === postId);
+};
 
 export const { addPost, addReaction } = postSlice.actions;
 
